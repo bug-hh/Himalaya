@@ -2,6 +2,7 @@ package com.bughh.himalaya.base;
 
 import android.app.Application;
 
+import com.bughh.himalaya.utils.LogUtil;
 import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
 import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest;
 
@@ -22,5 +23,8 @@ public class BaseApplication extends Application {
             mXimalaya.setPackid("com.ximalaya.qunfeng");
             mXimalaya.init(this ,mAppSecret, null);
         }
+
+        // 初始化 LogUtil
+        LogUtil.init(this.getPackageName(), false);
     }
 }
