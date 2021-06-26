@@ -35,6 +35,8 @@ dependencies {
     implementation files('libs/TingPhoneOpenSDK_7.5.4.jar')
     implementation files('libs/XmlyOAuth2SDK_V2.0.jar')
 
+    implementation 'com.github.hackware1993:MagicIndicator:1.7.0' // for androidx
+
     api 'com.google.code.gson:gson:2.8.1'
     api 'com.squareup.okhttp3:okhttp:3.11.0'
     api 'com.squareup.okio:okio:1.15.0'
