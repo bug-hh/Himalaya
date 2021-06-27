@@ -18,6 +18,7 @@ import com.bughh.himalaya.interfaces.IRecommendViewCallback;
 import com.bughh.himalaya.presenters.RecommendPresenter;
 import com.bughh.himalaya.utils.Constants;
 import com.bughh.himalaya.utils.LogUtil;
+import com.bughh.himalaya.views.UILoader;
 import com.ximalaya.ting.android.opensdk.constants.DTransferConstants;
 import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest;
 import com.ximalaya.ting.android.opensdk.datatrasfer.IDataCallBack;
@@ -30,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RecommendFragment extends BaseFragment implements IRecommendViewCallback {
+public class RecommendFragment extends BaseFragment implements IRecommendViewCallback, UILoader.OnRetryClickListener {
 
     private static final String TAG = "RecommendFragment";
 
@@ -38,19 +39,46 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
     private RecyclerView mRecommendRv;
     private RecommendListAdapter mRecommendListAdapter;
     private RecommendPresenter mRecommendPresenter;
+    private UILoader mUILaoder;
 
     @Override
-    protected View onSubViewLoaded(LayoutInflater inflater, ViewGroup container) {
+    protected View onSubViewLoaded(final LayoutInflater inflater, ViewGroup container) {
+
+        mUILaoder = new UILoader(getContext()) {
+            @Override
+            protected View getSuccessView(ViewGroup container) {
+                return createSuccessView(inflater, container);
+
+            }
+        };
+
+        // 获取到逻辑层的对象
+        mRecommendPresenter = RecommendPresenter.getInstance();
+//        注册通知接口, 换句话说，mRecommendPresenter 就持有了 RecommendFragment 的引用
+        mRecommendPresenter.registerViewCallback(this);
+//        获取推荐列表
+        mRecommendPresenter.getRecommendList();
+//        getRecommendData();
+
+        if (mUILaoder.getParent() instanceof ViewGroup) {
+            ((ViewGroup) mUILaoder.getParent()).removeView(mUILaoder);
+        }
+
+        mUILaoder.setOnRetryClickListener(this);
+        return mUILaoder;
+    }
+
+
+    private View createSuccessView(LayoutInflater inflater, ViewGroup container) {
         // view 加载完成
         mRootView = inflater.inflate(R.layout.fragment_recommend, container, false);
 
-
-//        RecyclerView 的使用
-//        1、找到控件
+        // RecyclerView 的使用
+        // 1、找到控件
         mRecommendRv = mRootView.findViewById(R.id.recommend_list);
 
 
-//        2、设置布局管理器
+        // 2、设置布局管理器
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecommendRv.setLayoutManager(linearLayoutManager);
@@ -66,23 +94,13 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         });
 
 
-//        3、设置适配器
+        // 3、设置适配器
         mRecommendListAdapter = new RecommendListAdapter();
         mRecommendRv.setAdapter(mRecommendListAdapter);
 
-
-        // 获取到逻辑层的对象
-        mRecommendPresenter = RecommendPresenter.getInstance();
-//        注册通知接口, 换句话说，mRecommendPresenter 就持有了 RecommendFragment 的引用
-        mRecommendPresenter.registerViewCallback(this);
-//        获取推荐列表
-        mRecommendPresenter.getRecommendList();
-//        getRecommendData();
-
         return mRootView;
+
     }
-
-
 
 //    private void updateRecommendUI(List<Album> albumList) {
 //        mRecommendListAdapter.setData(albumList);
@@ -93,6 +111,23 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
     public void onRecommendListLoaded(List<Album> result) {
         // 当我们成功获取到推荐内容的时候，这个方法就会被调用
         mRecommendListAdapter.setData(result);
+        mUILaoder.updateStatus(UILoader.UIStatus.SUCCESS);
+    }
+
+    @Override
+    public void onNetworkError() {
+        mUILaoder.updateStatus(UILoader.UIStatus.NETWORK_ERROR);
+
+    }
+
+    @Override
+    public void onEmpty() {
+        mUILaoder.updateStatus(UILoader.UIStatus.EMPTY);
+    }
+
+    @Override
+    public void onLoading() {
+        mUILaoder.updateStatus(UILoader.UIStatus.LOADING);
     }
 
     @Override
@@ -114,4 +149,11 @@ public class RecommendFragment extends BaseFragment implements IRecommendViewCal
         }
     }
 
+    @Override
+    public void onRetryClick() {
+        // 重新获取数据
+        if (mRecommendPresenter != null) {
+            mRecommendPresenter.getRecommendList();
+        }
+    }
 }

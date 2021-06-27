@@ -11,6 +11,21 @@ public interface IRecommendViewCallback {
     void onRecommendListLoaded(List<Album> result);
 
     /**
+     * 网络错误
+     */
+    void onNetworkError();
+
+    /**
+     * 数据为空
+     */
+    void onEmpty();
+
+    /**
+     * 加载中
+     */
+    void onLoading();
+
+    /**
      * 加载更多
      */
     void onLoadMore(List<Album> result);
@@ -19,4 +34,6 @@ public interface IRecommendViewCallback {
      * 下拉加载更多的结果
      */
     void onRefreshMore(List<Album> result);
+
+
 }
