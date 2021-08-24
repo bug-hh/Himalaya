@@ -1,0 +1,35 @@
+// 添加多个自定义属性，可以通过 ext 代码块
+ext {
+    username = "simon"
+
+    // 生产/开发环境
+    isRelease = true
+
+    // 建立 Map 存储，对象名，key 都可以自定义、groovy 糖果语法，非常灵活
+    androidId = [
+            compileSdkVersion: 29,
+            buildToolsVersion: "29.0.2",
+            minSdkVersion: 19,
+            targetSdkVersion: 29,
+            versionCode: 1,
+            versionName: "1.0"
+    ]
+
+
+    appId = [
+            app: "com.bughh.himalaya.modular.app"
+    ]
+
+    url = [
+            "debug": "http:11.22.33.44/debug",
+            "release": "http://11.22.33.44/release"
+    ]
+
+
+    dependencies = [
+            "recyclerview": "androidx.recyclerview:recyclerview:1.2.1",
+            "picasso":"com.squareup.picasso:picasso:2.71828"
+    ]
+
+
+}
